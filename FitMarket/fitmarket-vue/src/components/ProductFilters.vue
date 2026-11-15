@@ -22,7 +22,6 @@ const emit = defineEmits(["change-category"]);
         >
             Todas
         </button>
-
         <button
             v-for="category in categories"
             :key="category"

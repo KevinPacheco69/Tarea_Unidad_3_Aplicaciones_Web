@@ -7,6 +7,7 @@ const cors = require("cors");
 const taskRoutes = require("./src/routes/task.routes");
 const fileRoutes = require("./src/routes/file.routes");
 const productRoutes = require("./src/routes/product.routes");
+const contactRoutes = require("./src/routes/contact.routes");
 const { initializeSocket } = require("./src/sockets/socket");
 
 const app = express();
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 app.use("/api/tasks", taskRoutes);
 app.use("/api", fileRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/contact", contactRoutes);
 // Crear servidor HTTP
 const server = http.createServer(app);
 

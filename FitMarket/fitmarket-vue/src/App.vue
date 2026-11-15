@@ -1,3 +1,4 @@
+
 <template>
     <div class="app">
         <header class="site-header">
@@ -9,6 +10,7 @@
                 <nav aria-label="Navegación principal">
                     <RouterLink to="/">Inicio</RouterLink>
                     <RouterLink to="/catalogo">Catálogo</RouterLink>
+                    <RouterLink to="/contacto">Contacto</RouterLink>
                 </nav>
             </div>
         </header>
