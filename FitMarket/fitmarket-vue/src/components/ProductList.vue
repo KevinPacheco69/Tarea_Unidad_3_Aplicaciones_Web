@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { getProducts } from "../services/productService";
 import ProductCard from "./ProductCard.vue";
 import ProductFilters from "./ProductFilters.vue";
@@ -10,14 +10,17 @@ const loading = ref(true);
 const error = ref("");
 const selectedCategory = ref("Todas");
 
-// Obtener las categorías disponibles automáticamente
+// Control de cancelación de peticiones
+let controller = null;
+
+// Obtener categorías disponibles
 const categories = computed(() => {
     return [...new Set(
         products.value.map(product => product.category)
     )].sort();
 });
 
-// Filtrar productos según la categoría seleccionada
+// Filtrar productos
 const filteredProducts = computed(() => {
     if (selectedCategory.value === "Todas") {
         return products.value;
@@ -28,27 +31,53 @@ const filteredProducts = computed(() => {
     );
 });
 
-// Actualizar categoría seleccionada
+// Cambiar categoría
 const changeCategory = (category) => {
     selectedCategory.value = category;
 };
 
-// Consultar productos en la API
+// Consultar productos
 const loadProducts = async () => {
+    // Evitar peticiones simultáneas
+    if (loading.value) {
+        return;
+    }
+
+    // Cancelar petición anterior si existe
+    controller?.abort();
+
+    controller = new AbortController();
+
     loading.value = true;
     error.value = "";
 
     try {
-        products.value = await getProducts();
+        products.value = await getProducts({
+            signal: controller.signal
+        });
+
     } catch (err) {
-        error.value = err.message || "No se pudieron cargar los productos.";
+        if (err.name === "AbortError") {
+            return;
+        }
+
+        error.value = err.message ||
+            "No se pudieron cargar los productos.";
+
     } finally {
         loading.value = false;
     }
 };
 
-onMounted(() => {
-    loadProducts();
+// Carga inicial
+onMounted(async () => {
+    loading.value = false;
+    await loadProducts();
+});
+
+// Cancelar petición al abandonar el componente
+onUnmounted(() => {
+    controller?.abort();
 });
 </script>
 
